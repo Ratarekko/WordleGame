@@ -63,7 +63,7 @@ const handleKeyPress = (key) => {
 const handleEnterKey = () => {
     if (currentCol === 5) {
         const word = getCurrentWord();
-        if (isWordValid(word)) {
+        if (dictionaries.includes(word)) {
             revealWord(word);
             currentRow++;
             currentCol = 0;
@@ -89,9 +89,7 @@ const removeLetter = () => {
     }
 };
 
-const getCurrentWord = () => grid[currentRow].map(box => box.textContent).join('');  // diff on cw
-
-const isWordValid = (word) => dictionaries.includes(word);
+const getCurrentWord = () => grid[currentRow].map(box => box.textContent).join('');  //
 
 const revealWord = (guess) => {
     const animationDuration = 500; // ms
@@ -100,7 +98,7 @@ const revealWord = (guess) => {
     checkGameStatus(guess, animationDuration);
 };
 
-const animateBoxes = (guess, row, animationDuration) => {          //Обов'язковий рефакторинг
+const animateBoxes = (guess, row, animationDuration) => {          //
     for (let col = 0; col < 5; col++) {
         const box = grid[row][col];
         const letter = box.textContent;
@@ -114,7 +112,7 @@ const animateBoxes = (guess, row, animationDuration) => {          //Обов'я
     }
 };
 
-const getBoxClass = (letter, guess, col) => {     // diff on cw
+const getBoxClass = (letter, guess, col) => {     //
     if (letter === secret[col]) {
         return 'right';
     } else if (secret.includes(letter)) {
@@ -126,14 +124,14 @@ const getBoxClass = (letter, guess, col) => {     // diff on cw
     }
 };
 
-const countOccurrences = (word, letter) => {                            // diff on cw
+const countOccurrences = (word, letter) => {                            //
     return [...word].filter(char => char === letter).length;
 };
 
 const checkGameStatus = (guess, animationDuration) => {
     setTimeout(() => {
         if (secret === guess) {
-            showEndMessage('Вітаю! Перезапусти сторінку для нової гри');
+            showEndMessage('Ти виграв! Вітаю!');
             gameEnded = true;
         } else if (currentRow === 6) {
             showEndMessage(`Пощастить наступного разу!😔 Загадане слово: ${secret}.`);
