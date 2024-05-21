@@ -1,13 +1,10 @@
-import { fullDictionary } from './fullDictionary.js';
-import { wordForKey } from './dictionary.js';
+import { wordForKey, dictionaries } from './dictionaries.js';
 
-const secret = wordForKey[Math.floor(Math.random() * wordForKey.length)];
-const grid = [];
-let currentRow = 0;
-let currentCol = 0;
-let gameEnded = false;
-
-console.log(secret);
+let secret;
+let grid = [];
+let currentRow;
+let currentCol;
+let gameEnded;
 
 const drawGrid = (container) => {
     const gridElement = document.createElement('div');
@@ -92,9 +89,9 @@ const removeLetter = () => {
     }
 };
 
-const getCurrentWord = () => grid[currentRow].map(box => box.textContent).join('');
+const getCurrentWord = () => grid[currentRow].map(box => box.textContent).join('');  // diff on cw
 
-const isWordValid = (word) => fullDictionary.includes(word);
+const isWordValid = (word) => dictionaries.includes(word);
 
 const revealWord = (guess) => {
     const animationDuration = 500; // ms
@@ -117,7 +114,7 @@ const animateBoxes = (guess, row, animationDuration) => {          //Обов'я
     }
 };
 
-const getBoxClass = (letter, guess, col) => {    //Обов'язковий рефакторинг
+const getBoxClass = (letter, guess, col) => {     // diff on cw
     if (letter === secret[col]) {
         return 'right';
     } else if (secret.includes(letter)) {
@@ -129,27 +126,38 @@ const getBoxClass = (letter, guess, col) => {    //Обов'язковий ре�
     }
 };
 
-const countOccurrences = (word, letter) => {
+const countOccurrences = (word, letter) => {                            // diff on cw
     return [...word].filter(char => char === letter).length;
 };
 
 const checkGameStatus = (guess, animationDuration) => {
-
     setTimeout(() => {
         if (secret === guess) {
-            showMessage('Вітаю! Перезапусти сторінку для нової гри', 3000);
+            showEndMessage('Вітаю! Перезапусти сторінку для нової гри');
             gameEnded = true;
         } else if (currentRow === 6) {
-            showMessage(`Пощастить наступного разу!😔 Загадане слово: ${secret}.`, 5000);
+            showEndMessage(`Пощастить наступного разу!😔 Загадане слово: ${secret}.`);
             gameEnded = true;
         }
     }, 3 * animationDuration);
 };
 
-const startup = () => {
-    const game = document.getElementById('game');
-    drawGrid(game);
+const initGame = () => {
+    secret = wordForKey[Math.floor(Math.random() * wordForKey.length)];
+    grid = [];
+    currentRow = 0;
+    currentCol = 0;
+    gameEnded = false;
 
+    console.log(secret);
+
+    const gameElement = document.getElementById('game');
+    gameElement.innerHTML = '';
+
+    const endMessageElement = document.getElementById('end-message');
+    endMessageElement.style.display = 'none';
+
+    drawGrid(gameElement);
     registerKeyboardEvents();
 };
 
@@ -163,4 +171,14 @@ const showMessage = (text, time) => {
     }, time);
 };
 
-startup();
+const showEndMessage = (text) => {
+    const endMessageElement = document.getElementById('end-message');
+    const endMessageText = document.getElementById('end-message-text');
+    endMessageText.textContent = text;
+    endMessageElement.style.display = 'block';
+
+    const restartButton = document.getElementById('restart-button');
+    restartButton.onclick = initGame;
+};
+
+initGame();
