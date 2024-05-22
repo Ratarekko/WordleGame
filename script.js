@@ -1,4 +1,4 @@
-import { wordForKey, dictionaries } from './dictionaries.js';
+import { dictionaries, wordForKey } from './dictionaries.js';
 
 let secret;
 let grid = [];
@@ -6,13 +6,41 @@ let currentRow;
 let currentCol;
 let gameEnded;
 
+const GRID_ROWS = 6;
+const GRID_COLS = 5;
+
+document.addEventListener('DOMContentLoaded', () => {
+    initGame();
+});
+
+const initGame = () => {
+    secret = getRandomWord();
+    grid = [];
+    currentRow = 0;
+    currentCol = 0;
+    gameEnded = false;
+
+    console.log(secret)
+
+    const gameElement = document.getElementById('game');
+    gameElement.innerHTML = '';
+
+    const endMessageElement = document.getElementById('end-message');
+    endMessageElement.style.display = 'none';
+
+    drawGrid(gameElement);
+    registerKeyboardEvents();
+};
+
+const getRandomWord = () => wordForKey[Math.floor(Math.random() * wordForKey.length)];
+
 const drawGrid = (container) => {
     const gridElement = document.createElement('div');
     gridElement.className = 'grid';
 
-    for (let row = 0; row < 6; row++) {
+    for (let row = 0; row < GRID_ROWS; row++) {
         const gridRow = [];
-        for (let col = 0; col < 5; col++) {
+        for (let col = 0; col < GRID_COLS; col++) {
             const box = drawBox(gridElement, row, col);
             gridRow.push(box);
         }
@@ -26,25 +54,12 @@ const drawBox = (container, row, col) => {
     const box = document.createElement('div');
     box.className = 'box';
     box.id = `box${row}${col}`;
-    box.textContent = '';
-
     container.appendChild(box);
     return box;
 };
 
-const updateGrid = () => {
-    for (let row = 0; row < grid.length; row++) {
-        for (let col = 0; col < grid[row].length; col++) {
-            const box = grid[row][col];
-            box.textContent = grid[row][col].textContent;
-        }
-    }
-};
-
 const registerKeyboardEvents = () => {
-    document.body.onkeydown = (e) => {
-        handleKeyPress(e.key);
-    };
+    document.body.onkeydown = (e) => handleKeyPress(e.key);
 };
 
 const handleKeyPress = (key) => {
@@ -56,27 +71,12 @@ const handleKeyPress = (key) => {
     } else if (isLetter(key)) {
         addLetter(key);
     }
-
-    updateGrid();
-};
-
-const handleEnterKey = () => {
-    if (currentCol === 5) {
-        const word = getCurrentWord();
-        if (dictionaries.includes(word)) {
-            revealWord(word);
-            currentRow++;
-            currentCol = 0;
-        } else {
-            showMessage("Такого слова не існує", 1000);
-        }
-    }
 };
 
 const isLetter = (key) => /^[а-їґєії]$/i.test(key);
 
 const addLetter = (letter) => {
-    if (currentCol < 5) {
+    if (currentCol < GRID_COLS) {
         grid[currentRow][currentCol].textContent = letter;
         currentCol++;
     }
@@ -89,17 +89,29 @@ const removeLetter = () => {
     }
 };
 
-const getCurrentWord = () => grid[currentRow].map(box => box.textContent).join('');  //
+const handleEnterKey = () => {
+    if (currentCol === GRID_COLS) {
+        const word = getCurrentWord();
+        if (dictionaries.includes(word)) {
+            revealWord(word);
+            currentRow++;
+            currentCol = 0;
+        } else {
+            showMessage("Такого слова не існує", 1000);
+        }
+    }
+};
+
+const getCurrentWord = () => Array.from(grid[currentRow]).map(box => box.textContent).join('');
 
 const revealWord = (guess) => {
     const animationDuration = 500; // ms
-
     animateBoxes(guess, currentRow, animationDuration);
     checkGameStatus(guess, animationDuration);
 };
 
-const animateBoxes = (guess, row, animationDuration) => {          //
-    for (let col = 0; col < 5; col++) {
+const animateBoxes = (guess, row, animationDuration) => {
+    for (let col = 0; col < GRID_COLS; col++) {
         const box = grid[row][col];
         const letter = box.textContent;
 
@@ -112,7 +124,7 @@ const animateBoxes = (guess, row, animationDuration) => {          //
     }
 };
 
-const getBoxClass = (letter, guess, col) => {     //
+const getBoxClass = (letter, guess, col) => {
     if (letter === secret[col]) {
         return 'right';
     } else if (secret.includes(letter)) {
@@ -124,7 +136,7 @@ const getBoxClass = (letter, guess, col) => {     //
     }
 };
 
-const countOccurrences = (word, letter) => {                            //
+const countOccurrences = (word, letter) => {
     return [...word].filter(char => char === letter).length;
 };
 
@@ -133,30 +145,11 @@ const checkGameStatus = (guess, animationDuration) => {
         if (secret === guess) {
             showEndMessage('Ти виграв! Вітаю!');
             gameEnded = true;
-        } else if (currentRow === 6) {
+        } else if (currentRow === GRID_ROWS) {
             showEndMessage(`Пощастить наступного разу!😔 Загадане слово: ${secret}.`);
             gameEnded = true;
         }
     }, 3 * animationDuration);
-};
-
-const initGame = () => {
-    secret = wordForKey[Math.floor(Math.random() * wordForKey.length)];
-    grid = [];
-    currentRow = 0;
-    currentCol = 0;
-    gameEnded = false;
-
-    console.log(secret);
-
-    const gameElement = document.getElementById('game');
-    gameElement.innerHTML = '';
-
-    const endMessageElement = document.getElementById('end-message');
-    endMessageElement.style.display = 'none';
-
-    drawGrid(gameElement);
-    registerKeyboardEvents();
 };
 
 const showMessage = (text, time) => {
@@ -178,5 +171,3 @@ const showEndMessage = (text) => {
     const restartButton = document.getElementById('restart-button');
     restartButton.onclick = initGame;
 };
-
-initGame();
