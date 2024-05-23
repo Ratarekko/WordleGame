@@ -8,6 +8,8 @@ let gameEnded;
 
 const GRID_ROWS = 6;
 const GRID_COLS = 5;
+let totalScore = 0;
+const POINTS = [1000, 750, 600, 500, 400, 300];
 
 document.addEventListener('DOMContentLoaded', () => {
     initGame();
@@ -143,7 +145,9 @@ const countOccurrences = (word, letter) => {
 const checkGameStatus = (guess, animationDuration) => {
     setTimeout(() => {
         if (secret === guess) {
-            showEndMessage('Ти виграв! Вітаю!');
+            const points = POINTS[currentRow-1];
+            totalScore += points;
+            showEndMessage('Ти виграв! Вітаю!', totalScore);
             gameEnded = true;
         } else if (currentRow === GRID_ROWS) {
             showEndMessage(`Пощастить наступного разу!😔 Загадане слово: ${secret}.`);
@@ -162,12 +166,35 @@ const showMessage = (text, time) => {
     }, time);
 };
 
-const showEndMessage = (text) => {
+const showEndMessage = (text, totalScore) => {
     const endMessageElement = document.getElementById('end-message');
     const endMessageText = document.getElementById('end-message-text');
+    const totalScoreElement = document.getElementById('total-score-value');
+
     endMessageText.textContent = text;
+    totalScoreElement.textContent = totalScore;
     endMessageElement.style.display = 'block';
 
     const restartButton = document.getElementById('restart-button');
     restartButton.onclick = initGame;
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    const rulesButton = document.getElementById('rules-button');
+    const rulesModal = document.getElementById('rules-modal');
+    const closeButton = document.getElementsByClassName('close')[0];
+
+    rulesButton.addEventListener('click', () => {
+        rulesModal.style.display = 'block';
+    });
+
+    closeButton.addEventListener('click', () => {
+        rulesModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === rulesModal) {
+            rulesModal.style.display = 'none';
+        }
+    });
+});
