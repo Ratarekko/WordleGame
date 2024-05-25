@@ -145,12 +145,16 @@ const checkGameStatus = (guess, animationDuration) => {
         if (secret === guess) {
             const points = POINTS[currentRow - 1];
             totalScore += points;
-            balance += points; // Додаємо очки до балансу
+            balance += points;
             updateBalance();
-            showEndMessage(`Ти виграв! Вітаю! Відгадано з ${currentRow} спроби: +${points}`, totalScore, balance);
+            showEndMessage(`Ти виграв! Вітаю!|Відгадано з ${currentRow} спроби: +${points} <img src="sources/coin.png" class="coin-icon" alt="">`,
+                totalScore, balance
+            );
             gameEnded = true;
         } else if (currentRow === GRID_ROWS) {
-            showEndMessage(`Пощастить наступного разу!😔 Загадане слово: ${secret}.`, totalScore, balance);
+            showEndMessage(
+                `Пощастить наступного разу!😔|Загадане слово: ${secret}.`, totalScore, balance
+            );
             gameEnded = true;
         }
     }, 3 * animationDuration);
@@ -168,16 +172,17 @@ const showMessage = (text, time) => {
 
 const showEndMessage = (text, totalScore, balance) => {
     const endMessageElement = document.getElementById('end-message');
-    const endMessageText = document.getElementById('end-message-text');
+    const endMessageHeader = document.getElementById('end-message-header');
+    const endMessageBody = document.getElementById('end-message-body');
     const totalScoreElement = document.getElementById('total-score-value');
 
-    endMessageText.textContent = text;
+    const [headerText, bodyText] = text.split('|');
+
+    endMessageHeader.textContent = headerText;
+    endMessageBody.innerHTML = bodyText;
     totalScoreElement.textContent = balance;
-
     endMessageElement.style.display = 'block';
-
-    const restartButton = document.getElementById('restart-button');
-    restartButton.onclick = initGame;
+    document.getElementById('restart-button').onclick = initGame;
 };
 
 const updateBalance = () => {

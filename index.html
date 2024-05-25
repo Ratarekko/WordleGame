@@ -1,56 +1,60 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <title>Wordle</title>
     <meta charset="UTF-8">
     <meta name="description" content="Wordle by ratarekko" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle</title>
     <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-<h1 class="title">Wordle <span class="title-word-clone">by ratarekko</span></h1>
-<div id="message" class="message"></div>
-<div id="game"></div>
+<header>
+    <h1 class="title">Wordle <span class="subtitle">by ratarekko</span></h1>
+</header>
 
-<button id="rules-button">Правила гри</button>
-<div id="rules-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Правила гри </h2>
+<main>
+    <div id="message" class="message"></div>
+    <div id="game"></div>
 
-        <p> Правила гри прості: із шести спроб треба вгадати слово із 5-и букв, яке ховається за чорними квадратами.
-            Після кожної здогадки квадрати змінюють колір: вони стають сірими, якщо вказаних букв нема у слові,
-            жовтими – якщо букви стоять не на своєму місці та зеленими, якщо здогадка правильна. </p>
-
-        <p> За правильну відповідь отримаєш бали, чим раніше вгадаєш - тим більше балів матимеш, тож не зволікай!</p>
-
-        <p> У грі також діє система підказок, де за ігрову валюту можна дізнатись одну або дві випадкові літери загаданого слова </p>
-
-        <p><a href="https://youtu.be/dQw4w9WgXcQ?si=4UgBViIACdvZKKWC" target="_blank">Натисни, щоб дізнатись більше</a></p>
+    <button id="rules-button">Правила гри</button>
+    <div id="rules-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Правила гри</h2>
+            <p>Правила гри прості: за шість спроб треба вгадати слово із п'яти букв, яке ховається за чорними квадратами. Після кожної здогадки квадрати змінюють колір: вони стають сірими, якщо вказаних букв нема у слові, жовтими – якщо букви стоять не на своєму місці та зеленими, якщо здогадка правильна.</p>
+            <p>За правильну відповідь отримаєш бали, чим раніше вгадаєш - тим більше балів матимеш, тож не зволікай!</p>
+            <p>У грі також діє система підказок, де за ігрову валюту можна дізнатись одну або дві випадкові літери загаданого слова</p>
+            <p><a href="https://youtu.be/dQw4w9WgXcQ?si=4UgBViIACdvZKKWC" target="_blank">Натисни, щоб дізнатись більше</a></p>
+        </div>
     </div>
-</div>
 
-<button id="hints-button">Підказки</button>
-<div id="hints-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Підказки</h2>
-        <p>Використайте монети, щоб отримати підказки:</p>
-        <p>Ваш баланс: <span id="balance-value">0</span> <img src="coin.png" alt="coin" class="coin-icon"></p>
-        <button id="reveal-one-letter">Відкрити одну букву (100 монет)</button>
-        <button id="reveal-two-letters">Відкрити дві букви (200 монет)</button>
+    <button id="hints-button">Підказки</button>
+    <div id="hints-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Підказки</h2>
+            <p>Використайте монети, щоб отримати підказки:</p>
+            <p>Ваш баланс: <span id="balance-value">0</span> <img src="sources/coin.png" alt="coin" class="coin-icon"></p>
+            <button id="reveal-one-letter">Відкрити одну букву (100 монет)</button>
+            <button id="reveal-two-letters">Відкрити дві букви (200 монет)</button>
+        </div>
     </div>
-</div>
 
-<div id="end-message" class="end-message">
-    <div id="end-message-text"></div>
-    <div id="score-message"></div>
-    <div id="total-score">
-        <img src="coin.png" alt="coin" class="coin-icon">
-        <span id="total-score-value">0</span>
+    <div id="end-message" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="end-message-header" class="end-message-header"></div>
+            <div class="separator"></div>
+            <div id="end-message-body" class="end-message-body"></div>
+            <div class="separator"></div>
+            <div class="balance">
+                Баланс: <span id="total-score-value">0</span> <img src="sources/coin.png" class="coin-icon" alt="">
+            </div>
+            <button id="restart-button">Почати заново</button>
+        </div>
     </div>
-    <button id="restart-button">Нова гра</button>
-</div>
+</main>
+
 <script defer src="script.js" type="module"></script>
 </body>
 </html>
