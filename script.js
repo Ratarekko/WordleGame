@@ -1,18 +1,23 @@
 import { dictionaries, wordForKey } from './dictionaries.js';
 
-let secret;
-let grid = [];
-let currentRow;
-let currentCol;
-let gameEnded;
-
 const GRID_ROWS = 6;
 const GRID_COLS = 5;
-let totalScore = 0;
 const POINTS = [1000, 750, 600, 500, 400, 300];
+const HINT_COST_ONE = 100;
+const HINT_COST_TWO = 200;
+
+let secret;
+let grid = [];
+let currentRow = 0;
+let currentCol = 0;
+let gameEnded = false;
+let balance = 500;
+let totalScore = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     initGame();
+    initUI();
+    updateBalance();
 });
 
 const initGame = () => {
@@ -22,14 +27,11 @@ const initGame = () => {
     currentCol = 0;
     gameEnded = false;
 
-    console.log(secret)
+    console.log(secret);
 
     const gameElement = document.getElementById('game');
     gameElement.innerHTML = '';
-
-    const endMessageElement = document.getElementById('end-message');
-    endMessageElement.style.display = 'none';
-
+    hideElementById('end-message');
     drawGrid(gameElement);
     registerKeyboardEvents();
 };
@@ -66,13 +68,9 @@ const registerKeyboardEvents = () => {
 
 const handleKeyPress = (key) => {
     if (gameEnded) return;
-    if (key === 'Enter') {
-        handleEnterKey();
-    } else if (key === 'Backspace') {
-        removeLetter();
-    } else if (isLetter(key)) {
-        addLetter(key);
-    }
+    if (key === 'Enter') enterKeyPress();
+    else if (key === 'Backspace') removeLetter();
+    else if (isLetter(key)) addLetter(key);
 };
 
 const isLetter = (key) => /^[а-їґєії]$/i.test(key);
@@ -91,7 +89,7 @@ const removeLetter = () => {
     }
 };
 
-const handleEnterKey = () => {
+const enterKeyPress = () => {
     if (currentCol === GRID_COLS) {
         const word = getCurrentWord();
         if (dictionaries.includes(word)) {
@@ -107,7 +105,7 @@ const handleEnterKey = () => {
 const getCurrentWord = () => Array.from(grid[currentRow]).map(box => box.textContent).join('');
 
 const revealWord = (guess) => {
-    const animationDuration = 500; // ms
+    const animationDuration = 500;
     animateBoxes(guess, currentRow, animationDuration);
     checkGameStatus(guess, animationDuration);
 };
@@ -145,12 +143,14 @@ const countOccurrences = (word, letter) => {
 const checkGameStatus = (guess, animationDuration) => {
     setTimeout(() => {
         if (secret === guess) {
-            const points = POINTS[currentRow-1];
+            const points = POINTS[currentRow - 1];
             totalScore += points;
-            showEndMessage('Ти виграв! Вітаю!', totalScore);
+            balance += points; // Додаємо очки до балансу
+            updateBalance();
+            showEndMessage(`Ти виграв! Вітаю! Відгадано з ${currentRow} спроби: +${points}`, totalScore, balance);
             gameEnded = true;
         } else if (currentRow === GRID_ROWS) {
-            showEndMessage(`Пощастить наступного разу!😔 Загадане слово: ${secret}.`);
+            showEndMessage(`Пощастить наступного разу!😔 Загадане слово: ${secret}.`, totalScore, balance);
             gameEnded = true;
         }
     }, 3 * animationDuration);
@@ -166,35 +166,78 @@ const showMessage = (text, time) => {
     }, time);
 };
 
-const showEndMessage = (text, totalScore) => {
+const showEndMessage = (text, totalScore, balance) => {
     const endMessageElement = document.getElementById('end-message');
     const endMessageText = document.getElementById('end-message-text');
     const totalScoreElement = document.getElementById('total-score-value');
 
     endMessageText.textContent = text;
-    totalScoreElement.textContent = totalScore;
+    totalScoreElement.textContent = balance;
+
     endMessageElement.style.display = 'block';
 
     const restartButton = document.getElementById('restart-button');
     restartButton.onclick = initGame;
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    const rulesButton = document.getElementById('rules-button');
-    const rulesModal = document.getElementById('rules-modal');
-    const closeButton = document.getElementsByClassName('close')[0];
+const updateBalance = () => {
+    const balanceValueElement = document.getElementById('balance-value');
+    balanceValueElement.textContent = balance;
+};
 
-    rulesButton.addEventListener('click', () => {
-        rulesModal.style.display = 'block';
-    });
-
-    closeButton.addEventListener('click', () => {
-        rulesModal.style.display = 'none';
-    });
-
-    window.addEventListener('click', (event) => {
-        if (event.target === rulesModal) {
-            rulesModal.style.display = 'none';
+const initUI = () => {
+    document.getElementById('rules-button').onclick = () => toggleModal('rules-modal');
+    document.getElementById('hints-button').onclick = () => {
+        if (currentCol > 0) {
+            showMessage('Очистіть рядок перед використанням підказки', 2000);
+            return;
         }
-    });
-});
+        toggleModal('hints-modal');
+    };
+
+    const closeButtons = document.getElementsByClassName('close');
+    for (let i = 0; i < closeButtons.length; i++) {
+        closeButtons[i].onclick = (e) => hideElement(e.target.parentElement.parentElement);
+    }
+
+    document.getElementById('reveal-one-letter').onclick = () => revealHint(HINT_COST_ONE, 1);
+    document.getElementById('reveal-two-letters').onclick = () => revealHint(HINT_COST_TWO, 2);
+
+    window.onclick = (event) => {
+        if (event.target.classList.contains('modal')) hideElement(event.target);
+    };
+};
+
+const toggleModal = (id) => {
+    const modal = document.getElementById(id);
+    modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+};
+
+const hideElement = (element) => {
+    element.style.display = 'none';
+};
+
+const revealHint = (cost, lettersCount) => {
+    if (balance >= cost) {
+        balance -= cost;
+        for (let i = 0; i < lettersCount; i++) revealOneLetter();
+        updateBalance();
+        hideElement(document.getElementById('hints-modal'));
+    } else {
+        showMessage('Недостатньо монет для цієї підказки', 2000);
+    }
+};
+
+const revealOneLetter = () => {
+    const unrevealedIndexes = getUnrevealedIndexes();
+    const randomIndex = unrevealedIndexes[Math.floor(Math.random() * unrevealedIndexes.length)];
+    grid[currentRow][randomIndex].textContent = secret[randomIndex];
+};
+
+const getUnrevealedIndexes = () => {
+    return grid[currentRow].map((box, index) => box.textContent === '' ? index : null).filter(index => index !== null);
+};
+
+const hideElementById = (id) => {
+    document.getElementById(id).style.display = 'none';
+};
