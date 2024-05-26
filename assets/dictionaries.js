@@ -2566,7 +2566,7 @@ export const wordForKey =
 
 ]
 
-export const dictionaries =
+export const dictionary =
 ["абака",
 "абвер",
 "абзац",

@@ -1,4 +1,4 @@
-import { dictionaries, wordForKey } from './assets/dictionaries.js';
+import { dictionary, wordForKey } from './assets/dictionaries.js';
 
 const GRID_ROWS = 6;
 const GRID_COLS = 5;
@@ -88,7 +88,7 @@ const removeLetter = () => {
 const enterKeyPress = () => {
     if (currentCol === GRID_COLS) {
         const word = getCurrentWord();
-        if (dictionaries.includes(word)) {
+        if (dictionary.includes(word)) {
             revealWord(word);
             currentRow++;
             currentCol = 0;
