@@ -6,11 +6,10 @@ const POINTS = [1000, 750, 600, 500, 400, 300];
 const HINT_COST_ONE = 100;
 const HINT_COST_TWO = 200;
 
-let secret, grid, currentRow, currentCol, gameEnded, balance, totalScore;
+let secret, grid, currentRow, currentCol, gameEnded, balance;
 
 document.addEventListener('DOMContentLoaded', () => {
     balance = 500;
-    totalScore = 0;
     initGame();
     initUI();
     updateBalance();
@@ -93,6 +92,7 @@ const enterKeyPress = () => {
             revealWord(word);
             currentRow++;
             currentCol = 0;
+            playSound('correctWord');
         } else {
             message("Такого слова не існує", 1000);
         }
@@ -138,21 +138,27 @@ const countOccurrences = (word, letter) => [...word].filter(char => char === let
 const checkGameStatus = (guess, animationDuration) => {
     setTimeout(() => {
         if (secret === guess) {
-            const points = POINTS[currentRow - 1];
-            totalScore += points;
-            balance += points;
-            updateBalance();
-            endMessage(`Ти виграв! Вітаю!|Відгадано з ${currentRow} спроби: +${points}<img src="assets/coin.png" class="coin-icon" alt="">`,
-                totalScore, balance
-            );
-            gameEnded = true;
+            handleWin();
         } else if (currentRow === GRID_ROWS) {
-            endMessage(`Пощастить наступного разу!😔|Загадане слово: ${secret}.`,
-                totalScore, balance
-            );
-            gameEnded = true;
+            handleLoss();
         }
     }, 3 * animationDuration);
+};
+
+const handleWin = () => {
+    const points = POINTS[currentRow - 1];
+    balance += points;
+    updateBalance();
+    endMessage(`Ти виграв! Вітаю!|Відгадано з ${currentRow} спроби: +${points}<img src="assets/coin.png" class="coin-icon" alt="">`,
+        balance);
+    playSound('win');
+    gameEnded = true;
+};
+
+const handleLoss = () => {
+    endMessage(`Пощастить наступного разу!😔|Загадане слово: ${secret}.`, balance);
+    playSound('lose');
+    gameEnded = true;
 };
 
 const message = (text, time) => {
@@ -165,7 +171,7 @@ const message = (text, time) => {
     }, time);
 };
 
-const endMessage = (text, totalScore, balance) => {
+const endMessage = (text, balance) => {
     const endMessageElement = document.getElementById('end-message');
     const endMessageHeader = document.getElementById('end-message-header');
     const endMessageBody = document.getElementById('end-message-body');
@@ -187,7 +193,6 @@ const updateBalance = () => {
 
 const initUI = () => {
     setupButtons();
-    setupModals();
     setupHints();
     setupCloseModalOnClickOutside();
 };
@@ -195,11 +200,6 @@ const initUI = () => {
 const setupButtons = () => {
     document.getElementById('rules-button').onclick = () => toggleModal('rules-modal');
     document.getElementById('hints-button').onclick = handleHintsButtonClick;
-};
-
-const setupModals = () => {
-    const closeButtons = document.querySelectorAll('.close');
-    closeButtons.forEach(button => button.onclick = (e) => hideElement(e.target.closest('.modal')));
 };
 
 const setupHints = () => {
@@ -221,25 +221,15 @@ const handleHintsButtonClick = () => {
     toggleModal('hints-modal');
 };
 
-const toggleModal = (id) => {
-    const modal = document.getElementById(id);
-    modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-};
-
-const hideElement = (element) => {
-    element.style.display = 'none';
-};
-
 const revealHint = (cost, lettersCount) => {
     if (balance >= cost) {
         balance -= cost;
         for (let i = 0; i < lettersCount; i++) revealOneLetter();
         updateBalance();
-        hideElement(document.getElementById('hints-modal'));
     } else {
         message('Недостатньо монет для цієї підказки', 2000);
-        toggleModal('hints-modal');
     }
+    hideElementById('hints-modal');
 };
 
 const revealOneLetter = () => {
@@ -252,4 +242,18 @@ const getUnrevealedIndexes = () => grid[currentRow].map((box, index) => box.text
 
 const hideElementById = (id) => {
     document.getElementById(id).style.display = 'none';
+};
+
+const hideElement = (element) => {
+    element.style.display = 'none';
+};
+
+const toggleModal = (id) => {
+    const modal = document.getElementById(id);
+    modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+};
+
+const playSound = (soundId) => {
+    const sound = document.getElementById(`${soundId}-sound`);
+    sound.play();
 };
