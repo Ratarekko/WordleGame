@@ -1,4 +1,4 @@
-import { dictionaries, wordForKey } from './dictionaries.js';
+import { dictionaries, wordForKey } from './assets/dictionaries.js';
 
 const GRID_ROWS = 6;
 const GRID_COLS = 5;
@@ -142,7 +142,7 @@ const checkGameStatus = (guess, animationDuration) => {
             totalScore += points;
             balance += points;
             updateBalance();
-            endMessage(`Ти виграв! Вітаю!|Відгадано з ${currentRow} спроби: +${points}<img src="sources/coin.png" class="coin-icon" alt="">`,
+            endMessage(`Ти виграв! Вітаю!|Відгадано з ${currentRow} спроби: +${points}<img src="assets/coin.png" class="coin-icon" alt="">`,
                 totalScore, balance
             );
             gameEnded = true;
