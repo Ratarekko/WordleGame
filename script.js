@@ -133,7 +133,13 @@ const getBoxClass = (letter, guess, col) => {
     }
 };
 
-const countOccurrences = (word, letter) => [...word].filter(char => char === letter).length;
+const countOccurrences = (word, letter) => {
+    let count = 0;
+    for (let char of word) {
+        if (char === letter) count++;
+    }
+    return count;
+};
 
 const checkGameStatus = (guess, animationDuration) => {
     setTimeout(() => {
@@ -193,16 +199,13 @@ const updateBalance = () => {
 
 const initUI = () => {
     setupButtons();
-    setupHints();
     setupCloseModalOnClickOutside();
 };
 
 const setupButtons = () => {
     document.getElementById('rules-button').onclick = () => toggleModal('rules-modal');
     document.getElementById('hints-button').onclick = handleHintsButtonClick;
-};
 
-const setupHints = () => {
     document.getElementById('reveal-one-letter').onclick = () => revealHint(HINT_COST_ONE, 1);
     document.getElementById('reveal-two-letters').onclick = () => revealHint(HINT_COST_TWO, 2);
 };
@@ -211,6 +214,11 @@ const setupCloseModalOnClickOutside = () => {
     window.onclick = (event) => {
         if (event.target.classList.contains('modal')) hideElement(event.target);
     };
+
+    const closeButtons = document.querySelectorAll('.close');
+    for (let i = 0; i < closeButtons.length; i++) {
+        closeButtons[i].onclick = (e) => hideElement(e.target.closest('.modal'));
+    }
 };
 
 const handleHintsButtonClick = () => {
@@ -238,7 +246,15 @@ const revealOneLetter = () => {
     grid[currentRow][randomIndex].textContent = secret[randomIndex];
 };
 
-const getUnrevealedIndexes = () => grid[currentRow].map((box, index) => box.textContent === '' ? index : null).filter(index => index !== null);
+const getUnrevealedIndexes = () => {
+    const unrevealedIndexes = [];
+    for (let index = 0; index < grid[currentRow].length; index++) {
+        if (grid[currentRow][index].textContent === '') {
+            unrevealedIndexes.push(index);
+        }
+    }
+    return unrevealedIndexes;
+};
 
 const hideElementById = (id) => {
     document.getElementById(id).style.display = 'none';
@@ -255,5 +271,6 @@ const toggleModal = (id) => {
 
 const playSound = (soundId) => {
     const sound = document.getElementById(`${soundId}-sound`);
+    sound.currentTime = 0;
     sound.play();
 };
