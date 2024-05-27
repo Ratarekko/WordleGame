@@ -11,7 +11,7 @@ let secret, grid, currentRow, currentCol, gameEnded, balance;
 document.addEventListener('DOMContentLoaded', () => {
     balance = 500;
     initGame();
-    initUI();
+    setupButtons();
     updateBalance();
 });
 
@@ -197,20 +197,13 @@ const updateBalance = () => {
     balanceValueElement.textContent = balance;
 };
 
-const initUI = () => {
-    setupButtons();
-    setupCloseModalOnClickOutside();
-};
-
 const setupButtons = () => {
     document.getElementById('rules-button').onclick = () => toggleModal('rules-modal');
-    document.getElementById('hints-button').onclick = handleHintsButtonClick;
+    document.getElementById('hints-button').onclick = hintsButtonClick;
 
     document.getElementById('reveal-one-letter').onclick = () => revealHint(HINT_COST_ONE, 1);
     document.getElementById('reveal-two-letters').onclick = () => revealHint(HINT_COST_TWO, 2);
-};
 
-const setupCloseModalOnClickOutside = () => {
     window.onclick = (event) => {
         if (event.target.classList.contains('modal')) hideElement(event.target);
     };
@@ -221,7 +214,7 @@ const setupCloseModalOnClickOutside = () => {
     }
 };
 
-const handleHintsButtonClick = () => {
+const hintsButtonClick = () => {
     if (currentCol > 0) {
         message('Очистіть рядок перед використанням підказки', 2000);
         return;
