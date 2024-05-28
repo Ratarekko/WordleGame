@@ -3,8 +3,7 @@ import { dictionary, wordForKey } from './assets/dictionaries.js';
 const GRID_ROWS = 6;
 const GRID_COLS = 5;
 const POINTS = [1000, 750, 600, 500, 400, 300];
-const HINT_COST_ONE = 100;
-const HINT_COST_TWO = 200;
+const HINT_COST = 100;
 
 let secret, grid, currentRow, currentCol, gameEnded, balance;
 
@@ -100,7 +99,13 @@ const enterKeyPress = () => {
     }
 };
 
-const getCurrentWord = () => grid[currentRow].map(box => box.textContent).join('');
+const getCurrentWord = () => {
+    let word = '';
+    for (let col = 0; col < GRID_COLS; col++) {
+        word += grid[currentRow][col].textContent;
+    }
+    return word;
+};
 
 const revealWord = (guess, animationDuration) => {
     for (let col = 0; col < GRID_COLS; col++) {
@@ -153,8 +158,8 @@ const handleWin = () => {
     const points = POINTS[currentRow - 1];
     balance += points;
     updateBalance();
-    endMessage(`Ти виграв! Вітаю!|Відгадано з ${currentRow} спроби: +${points}<img src="assets/coin.png" class="coin-icon" alt="">`,
-        balance);
+    const coinImage = `<img src="assets/coin.png" class="coin-icon" alt="">`
+    endMessage(`Ти виграв! Вітаю!|Відгадано з ${currentRow} спроби: +${points}${coinImage}`, balance);
     playSound('win');
     gameEnded = true;
 };
@@ -199,8 +204,8 @@ const setupButtons = () => {
     document.getElementById('rules-button').onclick = () => toggleModal('rules-modal');
     document.getElementById('hints-button').onclick = hintsButtonClick;
 
-    document.getElementById('reveal-one-letter').onclick = () => revealHint(HINT_COST_ONE, 1);
-    document.getElementById('reveal-two-letters').onclick = () => revealHint(HINT_COST_TWO, 2);
+    document.getElementById('reveal-one-letter').onclick = () => revealHint(HINT_COST, 1);
+    document.getElementById('reveal-two-letters').onclick = () => revealHint(HINT_COST * 2, 2);
 
     window.onclick = (event) => {
         if (event.target.classList.contains('modal')) hideElement(event.target);
