@@ -88,8 +88,9 @@ const removeLetter = () => {
 const enterKeyPress = () => {
     if (currentCol === GRID_COLS) {
         const word = getCurrentWord();
+        const animationDuration = 350
         if (dictionary.includes(word)) {
-            revealWord(word);
+            revealWord(word, animationDuration);
             currentRow++;
             currentCol = 0;
             playSound('correctWord');
@@ -101,24 +102,21 @@ const enterKeyPress = () => {
 
 const getCurrentWord = () => grid[currentRow].map(box => box.textContent).join('');
 
-const revealWord = (guess) => {
-    const animationDuration = 500;
-    animateBoxes(guess, currentRow, animationDuration);
-    checkGameStatus(guess, animationDuration);
-};
-
-const animateBoxes = (guess, row, animationDuration) => {
+const revealWord = (guess, animationDuration) => {
     for (let col = 0; col < GRID_COLS; col++) {
-        const box = grid[row][col];
+        const box = grid[currentRow][col];
         const letter = box.textContent;
+        const boxClass = getBoxClass(letter, guess, col);
 
         setTimeout(() => {
-            box.classList.add(getBoxClass(letter, guess, col));
-        }, ((col + 1) * animationDuration) / 2);
+            box.classList.add('animated');
+        }, col * animationDuration);
 
-        box.classList.add('animated');
-        box.style.animationDelay = `${(col * animationDuration) / 2}ms`;
+        setTimeout(() => {
+            box.classList.add(boxClass);
+        }, (col * animationDuration) + animationDuration);
     }
+    checkGameStatus(guess, animationDuration);
 };
 
 const getBoxClass = (letter, guess, col) => {
@@ -148,7 +146,7 @@ const checkGameStatus = (guess, animationDuration) => {
         } else if (currentRow === GRID_ROWS) {
             handleLoss();
         }
-    }, 3 * animationDuration);
+    }, animationDuration * 5);
 };
 
 const handleWin = () => {
