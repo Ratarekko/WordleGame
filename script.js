@@ -25,7 +25,7 @@ const initGame = () => {
 
     const gameElement = document.getElementById('game');
     gameElement.innerHTML = '';
-    hideElementById('end-message');
+    hideElement('end-message');
     drawGrid(gameElement);
     registerKeyboardEvents();
 };
@@ -87,14 +87,14 @@ const removeLetter = () => {
 const enterKeyPress = () => {
     if (currentCol === GRID_COLS) {
         const word = getCurrentWord();
-        const animationDuration = 350
+        const animationDuration = 350;
         if (dictionary.includes(word)) {
             revealWord(word, animationDuration);
             currentRow++;
             currentCol = 0;
             playSound('correctWord');
         } else {
-            message("Такого слова не існує", 1000);
+            showMessage("Такого слова не існує", 1000);
         }
     }
 };
@@ -159,18 +159,18 @@ const handleWin = () => {
     balance += points;
     updateBalance();
     const coinImage = `<img src="assets/coin.png" class="coin-icon" alt="">`
-    endMessage(`Ти виграв! Вітаю!|Відгадано з ${currentRow} спроби: +${points}${coinImage}`, balance);
+    endMessage(`Ти виграв! Вітаю!<br>Відгадано з ${currentRow} спроби: +${points}${coinImage}`, balance);
     playSound('win');
     gameEnded = true;
 };
 
 const handleLoss = () => {
-    endMessage(`Пощастить наступного разу!😔|Загадане слово: ${secret}.`, balance);
+    endMessage(`Пощастить наступного разу!😔<br>Загадане слово: ${secret}.`, balance);
     playSound('lose');
     gameEnded = true;
 };
 
-const message = (text, time) => {
+const showMessage = (text, time) => {
     const message = document.getElementById('message');
     message.textContent = text;
     message.style.display = 'block';
@@ -186,9 +186,9 @@ const endMessage = (text, balance) => {
     const endMessageBody = document.getElementById('end-message-body');
     const totalScoreElement = document.getElementById('total-score-value');
 
-    const [headerText, bodyText] = text.split('|');
+    const [headerText, bodyText] = text.split('<br>');
 
-    endMessageHeader.textContent = headerText;
+    endMessageHeader.innerHTML = headerText;
     endMessageBody.innerHTML = bodyText;
     totalScoreElement.textContent = balance;
     endMessageElement.style.display = 'block';
@@ -208,18 +208,18 @@ const setupButtons = () => {
     document.getElementById('reveal-two-letters').onclick = () => revealHint(HINT_COST * 2, 2);
 
     window.onclick = (event) => {
-        if (event.target.classList.contains('modal')) hideElement(event.target);
+        if (event.target.classList.contains('modal')) hideElement(event.target.id);
     };
 
     const closeButtons = document.querySelectorAll('.close');
     for (let i = 0; i < closeButtons.length; i++) {
-        closeButtons[i].onclick = (e) => hideElement(e.target.closest('.modal'));
+        closeButtons[i].onclick = (e) => hideElement(e.target.closest('.modal').id);
     }
 };
 
 const hintsButtonClick = () => {
     if (currentCol > 0) {
-        message('Очистіть рядок перед використанням підказки', 2000);
+        showMessage('Очистіть рядок перед використанням підказки', 2000);
         return;
     }
     toggleModal('hints-modal');
@@ -231,9 +231,9 @@ const revealHint = (cost, lettersCount) => {
         for (let i = 0; i < lettersCount; i++) revealOneLetter();
         updateBalance();
     } else {
-        message('Недостатньо монет для цієї підказки', 2000);
+        showMessage('Недостатньо монет для цієї підказки', 2000);
     }
-    hideElementById('hints-modal');
+    hideElement('hints-modal');
 };
 
 const revealOneLetter = () => {
@@ -252,12 +252,8 @@ const getUnrevealedIndexes = () => {
     return unrevealedIndexes;
 };
 
-const hideElementById = (id) => {
+const hideElement = (id) => {
     document.getElementById(id).style.display = 'none';
-};
-
-const hideElement = (element) => {
-    element.style.display = 'none';
 };
 
 const toggleModal = (id) => {
